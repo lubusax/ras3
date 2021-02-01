@@ -1,3 +1,4 @@
+from decouple import config
 
-DIR_WIFI_CONNECTIONS = "/etc/NetworkManager/system-connections"
-SSID_WIFICONNECT = "__ras__"
+DIR_WIFI_CONNECTIONS = config("DIR_WIFI_CONNECTIONS")
+SSID_WIFICONNECT = config("SSID_WIFICONNECT")
