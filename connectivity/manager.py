@@ -6,47 +6,39 @@ import time
 from common import files as fl
 from common import constants as co
 from common import processes as pr
+from common.logger import loggerDEBUGdim
+from multiprocessing import Process, Manager
 
-
-def setEthernetEnvVariable():
-  pass
+from common.launcher import launcher
 
 def isDeviceConnected():
-    result = subprocess.check_output(
+    return subprocess.check_output(
         "nmcli general | grep 'connected' &> /dev/null",
         shell=True).decode("utf-8")
-    if result:
-        print("connected to internet: using nmcli general")
-        return True
-    else:
-        print("not connected to internet: using nmcli general")
-        return False
 
 def isWiFiDefined():
     return not fl.isDirectoryEmpty(co.DIR_WIFI_CONNECTIONS)
 
-def launchWiFiConnect():
-    print(time.strftime("%a, %d %b %Y %H:%M:%S"), "before wifi connect")
-    response = os.system("sudo wifi-connect -s "+ co.SSID_WIFICONNECT)
-    print(time.strftime("%a, %d %b %Y %H:%M:%S"), "after wifi connect with response: ", response)
-
-def killWifiConnect():
-    if pr.isProcessRunning("wifi-connect"):
-        #kill it
-        pass
-
-
+    
 def ensureConnectivity():
+    wificonnectProcess = Process(name="wifi-connect", target=launcher, args=("common.wificonnect",))
     if isDeviceConnected():
-        killWifiConnect()
-        setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet
+        loggerDEBUGdim(f"RAS is connected")
+        if wificonnectProcess.is_alive():
+            loggerDEBUGdim(f"terminating wifi-connect {wificonnectProcess}")
+            wificonnectProcess.terminate()        
+        #setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet
     else:
-        launchWifiConnect()
+        loggerDEBUGdim(f"RAS is NOT connected")
+        loggerDEBUGdim(f"starting wifi-connect {wificonnectProcess}")
+        if not wificonnectProcess.is_alive():
+            wificonnectProcess.start()
 
     time.sleep(co.PERIOD_CONNECTIVITY_MANAGER)
 
 def main():
-    ensureConnectivity()
+    while True:
+        ensureConnectivity()
 
 if __name__ == "__main__":
     main()

@@ -27,7 +27,7 @@ def getProcessObject(processName):
     '''
     if processName:
         for proc in psutil.process_iter():
-            #pp(proc)
+            pp(proc)
             try:
                 if processName.lower() in proc.name().lower():
                     return proc
