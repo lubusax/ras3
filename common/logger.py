@@ -4,10 +4,12 @@ from colorama import Fore, Back, Style
 # Style: DIM, NORMAL, BRIGHT, RESET_ALL
 
 from common.measureTime import nowInSecondsAndMilliseconds
+import common.constants as co
+
 
 import logging, logging.config
 
-logging.config.fileConfig(fname='./data/logging.conf', disable_existing_loggers=False)
+logging.config.fileConfig(fname=co.WORKING_DIR+'/data/logging.conf', disable_existing_loggers=False)
 
 def loggerTIMESTAMP(message):
   loggerDEBUGdim("TIMESTAMP - "+ message + f" : {nowInSecondsAndMilliseconds()}")

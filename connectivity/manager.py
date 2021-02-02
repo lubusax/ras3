@@ -12,33 +12,56 @@ from multiprocessing import Process, Manager
 from common.launcher import launcher
 
 def isDeviceConnected():
-    return subprocess.check_output(
+    result = subprocess.check_output(
         "nmcli general | grep 'connected' &> /dev/null",
         shell=True).decode("utf-8")
+    if result:
+        loggerDEBUGdim("connected to internet (nmcli general)")
+        return True
+    else:
+        loggerDEBUGdim("not connected to internet (nmcli general)")
+        return False
 
-def isWiFiDefined():
-    return not fl.isDirectoryEmpty(co.DIR_WIFI_CONNECTIONS)
+# def isWiFiDefined():
+#     return not fl.isDirectoryEmpty(co.DIR_WIFI_CONNECTIONS)
 
     
-def ensureConnectivity():
-    wificonnectProcess = Process(name="wifi-connect", target=launcher, args=("common.wificonnect",))
-    if isDeviceConnected():
-        loggerDEBUGdim(f"RAS is connected")
-        if wificonnectProcess.is_alive():
-            loggerDEBUGdim(f"terminating wifi-connect {wificonnectProcess}")
-            wificonnectProcess.terminate()        
-        #setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet
-    else:
-        loggerDEBUGdim(f"RAS is NOT connected")
-        loggerDEBUGdim(f"starting wifi-connect {wificonnectProcess}")
-        if not wificonnectProcess.is_alive():
-            wificonnectProcess.start()
+# def ensureConnectivity():
+#     if isDeviceConnected():
+#         loggerDEBUGdim(f"RAS is connected")
+#         if wificonnectProcess and wificonnectProcess.is_alive():
+#             loggerDEBUGdim(f"terminating wifi-connect {wificonnectProcess}")
+#             wificonnectProcess.terminate()        
+#         #setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet
+#     else:
+#         loggerDEBUGdim(f"RAS is NOT connected")
+#         loggerDEBUGdim(f"starting wifi-connect {wificonnectProcess}")
+#         if not wificonnectProcess:
+#             wificonnectProcess = Process(name="wifi-connect", target=launcher, args=("common.wificonnect",))            
+#         if not wificonnectProcess.is_alive():
+#             wificonnectProcess.start()
 
-    time.sleep(co.PERIOD_CONNECTIVITY_MANAGER)
+#     time.sleep(co.PERIOD_CONNECTIVITY_MANAGER)
 
 def main():
+    wificonnectProcess = None
     while True:
-        ensureConnectivity()
+        if isDeviceConnected():
+            loggerDEBUGdim(f"RAS is connected")
+            if wificonnectProcess and wificonnectProcess.is_alive():
+                loggerDEBUGdim(f"terminating wifi-connect {wificonnectProcess}")
+                wificonnectProcess.terminate()        
+            #setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet
+        else:
+            loggerDEBUGdim(f"RAS is NOT connected")
+            loggerDEBUGdim(f"starting wifi-connect {wificonnectProcess}")
+            if not wificonnectProcess:
+                wificonnectProcess = Process(name="wifi-connect", target=launcher, args=("common.wificonnect",))            
+            if not wificonnectProcess.is_alive():
+                wificonnectProcess.start()
+
+        time.sleep(co.PERIOD_CONNECTIVITY_MANAGER)
+
 
 if __name__ == "__main__":
     main()
