@@ -1,16 +1,23 @@
-import time
-import os
+import importlib
+from setproctitle import setproctitle  # pylint: disable=no-name-in-module
 
-from common import files as fl
-from common import constants as co
 
-from processes import internet_connectivity as ic
+def launcher(process):
+  try:
+    # import the process
+    module = importlib.import_module(process)
 
-ic.setConnectedEnvVariable()
+    # rename the process
+    setproctitle(process)
 
-if fl.isDirectoryEmpty(co.DIR_WIFI_CONNECTIONS):
-  print(time.strftime("%a, %d %b %Y %H:%M:%S +0000"), " no wifi connections found")
-  response = os.system("sudo wifi-connect -s "+ co.SSID_WIFICONNECT)
-  print(time.strftime("%a, %d %b %Y %H:%M:%S +0000"), " after wifi connect with response: ", response)
-else:
-  print(time.strftime("%a, %d %b %Y %H:%M:%S +0000"), " at least one wifi connection found")
+    # create new context since we forked
+    #messaging.context = messaging.Context()
+
+    # exec the process
+    module.main()
+  except KeyboardInterrupt:
+    pass
+    #cloudlog.warning("child %s got SIGINT" % proc)
+  except Exception:
+    #crash.capture_exception()
+    raise

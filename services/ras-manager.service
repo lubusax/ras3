@@ -1,14 +1,14 @@
 [Unit]
-Description=RFID Attendance System Launcher
+Description=RAS Manager
 After=network.target
 
 [Service]
 Type=simple
 PermissionsStartOnly=true
-SyslogIdentifier=ras-launcher
+SyslogIdentifier=ras-manager
 User=root
 Group=root
-ExecStart=/usr/bin/python3 /home/pi/ras/launcher.py
+ExecStart=/usr/bin/python3 /home/pi/ras/rasManager.py
 WorkingDirectory=/home/pi
 StandardOutput=journal+console
 

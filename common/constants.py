@@ -2,3 +2,4 @@ from decouple import config
 
 DIR_WIFI_CONNECTIONS = config("DIR_WIFI_CONNECTIONS")
 SSID_WIFICONNECT = config("SSID_WIFICONNECT")
+PERIOD_CONNECTIVITY_MANAGER = 10 #in seconds
