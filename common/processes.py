@@ -1,7 +1,7 @@
 import psutil
 
 from common.common import prettyPrint as pp
-from common.logger import loggerDEBUGdim
+from common.logger import loggerDEBUGdim, loggerERRORdim
 
 def isProcessRunning(processName):
     '''
@@ -50,7 +50,10 @@ def on_terminate(process):
 
 def terminateProcess(process): # process is an instance of psutil.Process()
     loggerDEBUGdim(f"terminating PID {process.pid}")
-    process.terminate()
+    try:
+        process.terminate()
+    except Exception as e:
+        loggerERRORdim(f"exception {e} while terminating PID {process.pid}")
 
 def killProcess(process): # process is an instance of psutil.Process()
     loggerDEBUGdim(f"killing PID {process.pid}")
