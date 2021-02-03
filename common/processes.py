@@ -44,6 +44,37 @@ def killProcess(processName):
             return True
     return False
 
+
+def on_terminate(process):
+    print(f"process {process} terminated with exit code {process.returncode}")
+
+def terminateProcess(process): # process is an instance of psutil.Process()
+    loggerDEBUGdim(f"terminating PID {process.pid}")
+    process.terminate()
+
+def killProcess(process): # process is an instance of psutil.Process()
+    loggerDEBUGdim(f"killing PID {process.pid}")
+    process.kill()
+
+def get_list_Of_Processes_parent_and_Children_And_GrandChildren(pid):
+    p0 = psutil.Process(pid=pid)
+    p_list = p0.children(recursive=True)
+    p_list.insert(0, p0) # the parent should too be included
+    return p_list
+
+def terminatePID_and_Children_and_GrandChildren(pid):
+
+    procs = get_list_Of_Processes_parent_and_Children_And_GrandChildren(pid)
+
+    for p in procs: terminateProcess(p)
+
+    gone, alive = psutil.wait_procs(                
+        procs,
+        timeout=co.WAIT_PERIOD_FOR_PROCESS_GRACEFUL_TERMINATION,
+        callback=on_terminate)
+
+    for p in alive: killProcess(p)
+
 def tests(processName):
 
     def test1(processName): # isProcessRunning

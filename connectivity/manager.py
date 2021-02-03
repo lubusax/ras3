@@ -1,11 +1,11 @@
 import time
 
 from common import constants as co
-import helpers as ch   # connectivity helpers
+from connectivity import helpers as ch   # connectivity helpers
 
 def main():
 
-    server = serverAccesPoint = wificonnectProcess() # server to define a new SSID WiFi 
+    server = serverAccesPoint = ch.wificonnectProcess() # server to define a new SSID WiFi 
 
     while True:
 
@@ -13,7 +13,7 @@ def main():
 
             server.handleInternetNotReachable()
 
-        elif server.isStillRunning():            # internet is working,
+        elif server.isRunning():            # internet is working,
 
             server.terminate()                   # wifi connect should be terminated
 

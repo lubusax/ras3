@@ -6,10 +6,10 @@ from multiprocessing import Process, Manager
 from common import constants as co
 from common.logger import loggerDEBUGdim
 from common.launcher import launcher
-
-
-
 from common import processes as pr
+
+
+
 import subprocess
 import time
 
@@ -60,26 +60,19 @@ class wificonnectProcess():
 
     def terminate(self):
 
-        def on_terminate(proc):
-            print("process {proc} terminated with exit code {proc.returncode}")
-
-        if self.process.exitcode is None:
-            loggerDEBUGdim("Internet (1.1.1.1) can be reached" + \
+        def logMessages():
+            loggerDEBUGdim("Internet (1.1.1.1) can be reached " + \
                 "and wifi-connect is still running." + \
                 f" Terminating wifi-connect {self.process}")
             loggerDEBUGdim(
-                f"wifi-connect Process PID is {self.process}")
-            proc0 = psutil.Process(pid=self.process.pid)
-            procs = proc0.children(recursive=True)
-            procs.insert(0, proc0)
-            for p in procs:
-                loggerDEBUGdim(f"terminating PID {p.pid}")
-                p.terminate()
-            gone, alive = psutil.wait_procs(
-                procs, timeout=10, callback=on_terminate)
-            for p in alive:
-                loggerDEBUGdim(f"killing PID {p.pid}")
-                p.kill()
+                f"wifi-connect Process PID is {self.process.pid}")
+
+        if not self.process.exitcode:
+
+            logMessages()
+
+            pr.terminatePID_and_Children_and_GrandChildren(self.process.pid)
+
             self.process = None
 
     def handleInternetNotReachable(self):
@@ -89,7 +82,7 @@ class wificonnectProcess():
         else:                               # OR 2)when connected to a SSID
             handleEth0NotWorking()
 
-    def isServerStillRunning(self):
+    def isRunning(self):
         if self.process:
             return True
         else:
