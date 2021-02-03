@@ -65,6 +65,8 @@ def is_wlan0_up():
 #             wificonnectProcess.start()
 
 #     time.sleep(co.PERIOD_CONNECTIVITY_MANAGER)
+def on_terminate(proc):
+    loggerDEBUGdim(f"process {proc} terminated with exit code {proc.returncode}")
 
 def main():
     wificonnectProcess = None
@@ -86,7 +88,13 @@ def main():
             if wificonnectProcess.exitcode is None:
                 loggerDEBUGdim(f"Internet (1.1.1.1) can be reached and wifi-connect is still running. Terminating wifi-connect {wificonnectProcess}")
                 loggerDEBUGdim(f"wifi-connect Process PID is {wificonnectProcess.pid}")
-                os.kill(wificonnectProcess.pid, signal.SIGTERM)
+                procs = wificonnectProcess.children()
+                for p in procs:
+                    p.terminate()
+                gone, alive = psutil.wait_procs(procs, timeout=10, callback=on_terminate)
+                for p in alive:
+                    p.kill()
+                #os.kill(wificonnectProcess.pid, signal.SIGTERM)
                 wificonnectProcess = None      
 
         # TODO setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet
