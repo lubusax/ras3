@@ -89,8 +89,9 @@ def main():
             if wificonnectProcess.exitcode is None:
                 loggerDEBUGdim(f"Internet (1.1.1.1) can be reached and wifi-connect is still running. Terminating wifi-connect {wificonnectProcess}")
                 loggerDEBUGdim(f"wifi-connect Process PID is {wificonnectProcess.pid}")
-                wificonnectProcessPSUTIL = psutil.Process(pid=wificonnectProcess.pid)
-                procs = wificonnectProcessPSUTIL.children()
+                proc0 = psutil.Process(pid=wificonnectProcess.pid)
+                procs = proc0.children(recursive=True)
+                procs.insert(0, proc0)
                 for p in procs:
                     loggerDEBUGdim(f"terminating PID {p.pid}")
                     p.terminate()
