@@ -1,90 +1,82 @@
-import os, sys, time # pylint: disable=import-error
-#from crontab.crontabSetup import minuteTrigger 
-#from rpi.rpiSetup import setHostname
-#from internet.internet import ensureInternet
-#from odoo.gate import gateInit
+import os, sys, time 
+#import importlib
+
 from multiprocessing import Process, Manager
 
 from common.launcher import launcher
-from common.logger import loggerDEBUG, loggerINFO, loggerWARNING, loggerERROR, loggerCRITICAL
-import importlib
+from common.logger import loggerINFO, loggerCRITICAL
+
 
 loggerINFO(f'running on python version: {sys.version}')
 
-managedProcesses = {
-    "connectivityManager": "connectivity.manager"
-    #"bluetoothConnection": "bluetooth.bluetooth",
-    #"devicesManager": "bluetooth.devicesManager",
-    #"newDevicesScout": "bluetooth.newDevicesScout",    
+managed_essential_processes = {
+    "connectivityManager": "connectivity.manager"    
 }
 
-greenTempProcesses = managedProcesses
+managed_NON_essential_processes = {}
 
-persistentProcesses = greenTempProcesses
+managed_processes = {
+    **managed_essential_processes,
+    **managed_NON_essential_processes
+    }
+
+daemon_processes = {}
 
 running = {}
 
-def defineDirectories():
+def start_managed_process(name):
 
-  dirPath = os.path.dirname(os.path.realpath(__file__))
+    if name not in running and name in managed_processes:
 
-  loggerDEBUG(f'running on directory: {dirPath}')
+        process = managed_processes[name]
 
-  os.environ['PYTHONPATH'] = dirPath
+        loggerINFO(f"starting python process {process}")
 
-  pythonPath = os.getenv('PYTHONPATH')
+        running[name] = Process(name=name, target=launcher, args=(process,))
 
-  loggerDEBUG(f'PYTHONPATH: {pythonPath}')
+        running[name].start()
 
-def startManagedProcess(name):
-  if name in running or name not in managedProcesses: return
-
-  process = managedProcesses[name]
-
-  loggerINFO(f"starting python process {process}")
-
-  running[name] = Process(name=name, target=launcher, args=(process,))
-
-  running[name].start()
-
-def killManagedProcess(name):
+def terminate_managed_process(name):
   loggerINFO(f"killing python process {process}")
 
-def preImportMethods():
-  for i, p in enumerate(managedProcesses):
-    process = managedProcesses[p]
-    loggerINFO(f"process number {i}, preimporting {process}")
-    importlib.import_module(process)
+def start_all_managed_processes():
+    for p in managed_processes:
+        start_managed_process(p)
+
+def start_all_daemon_processes():
+    for p in daemon_processes:
+        start_daemon_process(p)
+
+def terminate_non_essential_managed_processes():
+    for p in managed_NON_essential_processes:
+        terminate_managed_process(p)
 
 def managerThread():
-  loggerDEBUG(f"starting manager thread") 
-  # Get thermal status through messaging -- msg = messaging.recv_sock(thermal_sock, wait=True)
-  # heavyweight batch processes run only when thermal conditions are favorable
 
-  thermalStatusCritical = False
+    loggeINFO(f"starting manager thread") 
 
-  loggerINFO(f"green Temp Processes {greenTempProcesses}")
+    start_all_daemon_processes()
+    start_all_managed_processes()
 
-  if thermalStatusCritical:
-    for p in greenTempProcesses:
-      if p in persistentProcesses:
-        killManagedProcess(p)
-  else:
-    for p in greenTempProcesses:
-      startManagedProcess(p) 
+    thermal = ThermalStatus() # instance of class ThermalStatus
+
+    while 1:
+
+        if thermal.isCritical():
+            terminate_non_essential_managed_processes()
+        else:
+            start_all_managed_processes()
+
+        thermal.update()
 
 def main():
-
-  defineDirectories()
-
-  preImportMethods()
 
   try:
     managerThread()
   except Exception as e:
-    loggerCRITICAL(f'thingsGate managerThread failed to start with exception {e}')
+    loggerCRITICAL(f'managerThread() failed to start with exception {e}')
   finally:
-    #cleanupAllProcesses()
+    # TODO cleanupAllProcesses()
     pass
 
 
@@ -93,4 +85,4 @@ if __name__ == "__main__":
   try:
     main()
   except Exception as e:
-    loggerCRITICAL(f'thingsGate Manager failed to start with exception {e}')
+    loggerCRITICAL(f'main() failed to start with exception {e}')
