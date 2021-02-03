@@ -2,6 +2,7 @@ import subprocess
 import os
 import time
 import signal
+import psutil
 
 
 from common import files as fl
@@ -88,11 +89,14 @@ def main():
             if wificonnectProcess.exitcode is None:
                 loggerDEBUGdim(f"Internet (1.1.1.1) can be reached and wifi-connect is still running. Terminating wifi-connect {wificonnectProcess}")
                 loggerDEBUGdim(f"wifi-connect Process PID is {wificonnectProcess.pid}")
-                procs = wificonnectProcess.children()
+                wificonnectProcessPSUTIL = psutil.Process(pid=wificonnectProcess.pid)
+                procs = wificonnectProcessPSUTIL.children()
                 for p in procs:
+                    loggerDEBUGdim(f"terminating PID {p.pid}")
                     p.terminate()
                 gone, alive = psutil.wait_procs(procs, timeout=10, callback=on_terminate)
                 for p in alive:
+                    loggerDEBUGdim(f"killing PID {p.pid}")
                     p.kill()
                 #os.kill(wificonnectProcess.pid, signal.SIGTERM)
                 wificonnectProcess = None      
