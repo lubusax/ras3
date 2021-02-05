@@ -6,13 +6,13 @@ import common.constants as co
 logger = logging.getLogger('ras3-dev')
 logger.setLevel(logging.DEBUG) 
 
-#fileHandler = logging.FileHandler(co.LOG_FILE)
-#fileHandler.setLevel(logging.DEBUG)
+fileHandler = logging.FileHandler(co.LOG_FILE)
+fileHandler.setLevel(logging.DEBUG)
 
 consoleHandler = logging.StreamHandler()
 consoleHandler.setLevel(logging.DEBUG)
 
-#logger.addHandler(fileHandler)
+logger.addHandler(fileHandler)
 logger.addHandler(consoleHandler)
 logger.addHandler(journal.JournalHandler())
 

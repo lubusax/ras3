@@ -4,6 +4,11 @@ from typing import Dict, List
 
 from multiprocessing import Process, Manager
 
+from colorama import Fore as cf
+# Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+# Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
+# Style: DIM, NORMAL, BRIGHT, RESET_ALL
+
 from common import constants as co
 from common.launcher import launcher
 from common.logger import loggerINFO, loggerCRITICAL, loggerDEBUG
@@ -12,7 +17,8 @@ from common.logger import loggerINFO, loggerCRITICAL, loggerDEBUG
 loggerINFO(f'running on python version: {sys.version}')
 
 managed_essential_processes = { # key(=process name) : (pythonmodule where the process is defined (= process name))
-    "internet_connectivity_d": "connectivity.manager"    
+    "internet_connectivity_d": "connectivity.manager",
+    "thermal_d": "thermal.manager"   
 }
 
 managed_NON_essential_processes = {}
@@ -66,8 +72,11 @@ def log_begin_manager_thread():
     loggerINFO({"environ": os.environ})
 
 def log_running_processes_list():
-    running_list = ["%s%s\u001b[0m" % ("\u001b[32m" if running[p].is_alive() else "\u001b[31m", p) for p in running]
-    loggerDEBUG(' '.join(running_list))    
+    #running_list = ["%s%s\u001b[0m" % ("\u001b[32m" if running[p].is_alive() else "\u001b[31m", p) for p in running]
+    running_alive = [p for p in running if running[p].is_alive()]
+    running_dead = [p for p in running if p not in running_alive]
+    loggerDEBUG("alive: " + cf.GREEN + ' ; '.join(running_alive) + cf.RESET)    
+    loggerDEBUG("dead: " + cf.RED + ' ; '.join(running_dead) + cf.RESET) 
 
 def manager_thread():
     log_begin_manager_thread()
