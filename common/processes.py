@@ -2,7 +2,7 @@ import psutil
 
 from common import constants as co
 from common.common import prettyPrint as pp
-from common.logger import loggerDEBUGdim, loggerERRORdim
+from common.logger import loggerDEBUG, loggerERROR
 
 def isProcessRunning(processName):
     '''
@@ -50,14 +50,14 @@ def on_terminate(process):
     print(f"process {process} terminated with exit code {process.returncode}")
 
 def terminateProcess(process): # process is an instance of psutil.Process()
-    loggerDEBUGdim(f"terminating PID {process.pid}")
+    loggerDEBUG(f"terminating PID {process.pid}")
     try:
         process.terminate()
     except Exception as e:
-        loggerERRORdim(f"exception {e} while terminating PID {process.pid}")
+        loggerERROR(f"exception {e} while terminating PID {process.pid}")
 
 def killProcess(process): # process is an instance of psutil.Process()
-    loggerDEBUGdim(f"killing PID {process.pid}")
+    loggerDEBUG(f"killing PID {process.pid}")
     process.kill()
 
 def get_list_Of_Processes_parent_and_Children_And_GrandChildren(pid):
@@ -83,17 +83,17 @@ def tests(processName):
 
     def test1(processName): # isProcessRunning
         if isProcessRunning(processName):
-            loggerDEBUGdim(f'A process with name {processName} was running')
+            loggerDEBUG(f'A process with name {processName} was running')
         else:
-            loggerDEBUGdim(f'No process with name {processName} was running')
+            loggerDEBUG(f'No process with name {processName} was running')
 
     def test2(processName): # getProcessObject
         processObject = getProcessObject(processName)
         if processObject:
-            loggerDEBUGdim(f'A process with name {processName} was running')
+            loggerDEBUG(f'A process with name {processName} was running')
             pp(processObject)
         else:
-            loggerDEBUGdim(f'No process with name {processName} was found')
+            loggerDEBUG(f'No process with name {processName} was found')
 
     def test3(processName): # killProcess
         # TODO

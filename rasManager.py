@@ -28,6 +28,7 @@ running: Dict[str, Process] = {}
 
 def start_managed_process(name):
     if name not in running and name in managed_processes:
+        preimport_managed_process(name)
         process = managed_processes[name]
         loggerINFO(f"starting python process {process}")
         running[name] = Process(name=name, target=launcher, args=(process,))
@@ -50,7 +51,6 @@ def preimport_managed_process(name):
 
 def start_all_managed_processes():
     for name in managed_processes:
-        preimport_managed_process(name)
         start_managed_process(name)
 
 def start_all_daemon_processes():

@@ -1,7 +1,7 @@
 import importlib
 from setproctitle import setproctitle  # pylint: disable=no-name-in-module
 
-from common.logger import loggerDEBUGdim
+from common.logger import loggerDEBUG
 
 def launcher(process):
     try:
@@ -9,7 +9,7 @@ def launcher(process):
         module = importlib.import_module(process)
 
         # rename the process
-        loggerDEBUGdim(f"starting the process with the name {process}")
+        loggerDEBUG(f"starting the process with the name {process}")
         setproctitle(process)
 
         # create new context since we forked

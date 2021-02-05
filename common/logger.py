@@ -1,71 +1,47 @@
-from colorama import Fore, Back, Style
-# Fore: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-# Back: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET.
-# Style: DIM, NORMAL, BRIGHT, RESET_ALL
+import logging
+from systemd import journal
 
-from common.measureTime import nowInSecondsAndMilliseconds
 import common.constants as co
 
+logger = logging.getLogger('ras3-dev')
+logger.setLevel(logging.DEBUG) 
 
-import logging, logging.config
+#fileHandler = logging.FileHandler(co.LOG_FILE)
+#fileHandler.setLevel(logging.DEBUG)
 
-logging.config.fileConfig(fname=co.WORKING_DIR+'/data/logging.conf', disable_existing_loggers=False)
+consoleHandler = logging.StreamHandler()
+consoleHandler.setLevel(logging.DEBUG)
 
-def loggerTIMESTAMP(message):
-  loggerDEBUGdim("TIMESTAMP - "+ message + f" : {nowInSecondsAndMilliseconds()}")
+#logger.addHandler(fileHandler)
+logger.addHandler(consoleHandler)
+logger.addHandler(journal.JournalHandler())
 
-def loggerTIMESTAMPred(messageRED, messageDIMMED=""):
-  logging.debug("TIMESTAMP-"+Fore.RED+messageRED+Fore.RESET+Style.DIM+messageDIMMED+ f" : {nowInSecondsAndMilliseconds()}"+Style.RESET_ALL)
-
-def loggerTIMESTAMPgreen(message, messageDIMMED=""):
-  logging.debug("TIMESTAMP-"+Fore.GREEN+message+Fore.RESET+Style.DIM+messageDIMMED+ f" : {nowInSecondsAndMilliseconds()}"+Style.RESET_ALL)
-
-def loggerTIMESTAMPcyan(message, messageDIMMED=""):
-  logging.debug("TIMESTAMP-"+Fore.CYAN+message+Fore.RESET+Style.DIM+messageDIMMED+ f" : {nowInSecondsAndMilliseconds()}"+Style.RESET_ALL)
-
-######################
+formatter = logging.Formatter('%(asctime)s  %(name)s  %(levelname)s: %(message)s')
+consoleHandler.setFormatter(formatter)
 
 def loggerDEBUG(message):
-  logging.debug(message)
+  logger.debug(message)
 
-def loggerDEBUGdim(message):
-  loggerDEBUG(Style.DIM + message + Style.RESET_ALL)
-
-def loggerDEBUGredDIM(messageRED, messageDIMMED=""):
-  logging.debug(Fore.RED+messageRED+Fore.RESET+Style.DIM+messageDIMMED+Style.RESET_ALL)
-
-def loggerDEBUGgreenDIM(message, messageDIMMED=""):
-  logging.debug(Fore.GREEN+message+Fore.RESET+Style.DIM+messageDIMMED+Style.RESET_ALL)
 
 #######################
 
 def loggerINFO(message):
-  logging.info(message)
+  logger.info(message)
 
-def loggerINFOdim(message):
-  loggerINFO(Style.DIM + message + Style.RESET_ALL)
-
-def loggerINFOredDIM(messageRED, messageDIMMED=""):
-  logging.info(Fore.RED+messageRED+Fore.RESET+Style.DIM+messageDIMMED+Style.RESET_ALL)
 
 ########################
 
 def loggerWARNING(message):
-  logging.warning(message)
+  logger.warning(message)
 
 ########################
 
 def loggerERROR(message):
-  logging.error(message)
+  logger.error(message)
 
-def loggerERRORdim(message):
-  loggerERROR(Style.DIM + message + Style.RESET_ALL)
-
-def loggerERRORredDIM(messageRED, messageDIMMED=""):
-  logging.error(Fore.RED+messageRED+Fore.RESET+Style.DIM+messageDIMMED+Style.RESET_ALL)
 
 ########################
 
 def loggerCRITICAL(message):
-  logging.critical(message)
+  logger.critical(message)
 

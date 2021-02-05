@@ -4,10 +4,10 @@ import psutil
 from multiprocessing import Process, Manager
 
 from common import constants as co
-from common.logger import loggerDEBUGdim
+from common.logger import loggerDEBUG
 from common.launcher import launcher
 from common import processes as pr
-
+from common import common as cc
 
 
 import subprocess
@@ -17,19 +17,20 @@ def isInterfaceUp(interface):
     with open(co.INTERFACES[interface][0], "r") as f:
         result = f.read()
     if "up" in result:
-        loggerDEBUGdim(f"{interface} is up")
+        loggerDEBUG(f"{interface} is up")
         return True
     else:
-        loggerDEBUGdim(f"{interface} is NOT up")
+        loggerDEBUG(f"{interface} is NOT up")
         return False    
 
 def handleEth0NotWorking():
-    loggerDEBUGdim( \
+    loggerDEBUG( \
         f"eth0 is up but internet (1.1.1.1) can not be reached-"+ \
             " Check the Ethernet Internet Provider. RAS is NOT connected")
 
 def isPingable(address):
-    response = os.system("ping -c 1 " + address)
+    #response = os.system("ping -c 1 " + address )
+    response = cc.runShellCommand("ping -c 1 " + address)
     if response == 0:
         pingstatus = True
     else:
@@ -45,7 +46,7 @@ class wificonnectProcess():
         self.process = None
 
     def start(self):
-        loggerDEBUGdim(f"eth0 and wlan0 are both down" + \
+        loggerDEBUG(f"eth0 and wlan0 are both down" + \
                         "- RAS is NOT connected")
 
         if not self.process:
@@ -53,7 +54,7 @@ class wificonnectProcess():
                                     target=launcher,               \
                                     args=("common.wificonnect",)  )
 
-        loggerDEBUGdim(f"starting wifi-connect {self.process}")
+        loggerDEBUG(f"starting wifi-connect {self.process}")
 
         if not self.process.is_alive():
             self.process.start()
@@ -61,10 +62,10 @@ class wificonnectProcess():
     def terminate(self):
 
         def logMessages():
-            loggerDEBUGdim("Internet (1.1.1.1) can be reached " + \
+            loggerDEBUG("Internet (1.1.1.1) can be reached " + \
                 "and wifi-connect is still running." + \
                 f" Terminating wifi-connect {self.process}")
-            loggerDEBUGdim(
+            loggerDEBUG(
                 f"wifi-connect Process PID is {self.process.pid}")
 
         if not self.process.exitcode:

@@ -12,7 +12,11 @@ def prettyPrint(message):
 
 def runShellCommand(command):
     try:
-        completed = subprocess.run(command.split())
-        loggerDEBUG(f'command {command} - returncode: {completed.returncode}')
+        completed = subprocess.run(command.split(),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT)
+        loggerDEBUG(f'shell command {command} - returncode: {completed.returncode}')
+        return completed.returncode
     except:
-        loggerERROR(f"error on method run shell command: {command}")
+        loggerERROR(f"error on shell command: {command}")
+        return False
