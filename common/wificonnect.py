@@ -4,6 +4,6 @@ from common import constants as co
 
 def main():
     loggerDEBUG("launching wifi-connect")
-    response = os.system("wifi-connect -s "+ co.SSID_WIFICONNECT)
+    response = os.system("sudo wifi-connect -s "+ co.SSID_WIFICONNECT)
     loggerDEBUG(f"wifi-connect with response: {response}")
     
