@@ -19,12 +19,13 @@ def main():
         cpuPerc = int(round(psutil.cpu_percent()))
         loadAvg = psutil.getloadavg()
         temperatures = psutil.sensors_temperatures()
+        temperatureCurrent = int(psutil.sensors_temperatures()['cpu_thermal'][0].current)
 
         loadAvgPerc = [ int(round(l*100/cpu_count)) for l in loadAvg]
         loggerDEBUG(f"memUsedPercent {memUsedPercent}%")    
         loggerDEBUG(f"cpuPerc {cpuPerc}%") 
         loggerDEBUG(f"loadAvgPerc 1min:{loadAvgPerc[0]}% - 5min:{loadAvgPerc[1]}% - 15min:{loadAvgPerc[2]}%" ) 
-        loggerDEBUG(f"temperatures {temperatures}")
+        loggerDEBUG(f"current temperature {temperatureCurrent}°C")
 
         time.sleep(co.PERIOD_THERMAL_MANAGER)
 
