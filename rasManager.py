@@ -2,6 +2,8 @@ import os, sys, time
 import importlib
 from typing import Dict, List
 
+import zmq
+
 from multiprocessing import Process, Manager
 
 from colorama import Fore as cf
@@ -12,7 +14,7 @@ from colorama import Fore as cf
 from common import constants as co
 from common.launcher import launcher
 from common.logger import loggerINFO, loggerCRITICAL, loggerDEBUG
-
+from messaging.messaging import SubscriberMultipart as Subscriber
 
 loggerINFO(f'running on python version: {sys.version}')
 
@@ -79,12 +81,22 @@ def log_running_processes_list():
     loggerDEBUG("dead: " + cf.RED + ' ; '.join(running_dead) + cf.RESET) 
 
 def manager_thread():
+    ras_subscriber = Subscriber("5556")
+    ras_subscriber.subscribe("thermal")
     log_begin_manager_thread()
     start_all_daemon_processes()
     start_all_managed_processes()
     #thermal = ThermalStatus() # instance of class ThermalStatus
     while 1:
         # get thermal status
+        topic, message = ras_subscriber.receive() # BLOCKING
+        #loggerDEBUG(f"received {topic} {message}")
+        if topic == "thermal":
+            counter, temperature, load_5min, memUsed = \
+                message.split()     
+            loggerDEBUG(f"thermal update nr.{counter}: T {temperature}°C," + \
+                f" CPU load 5 min avg {load_5min}%, mem used {memUsed}%")
+
         if False: #thermal.isCritical()
             terminate_non_essential_managed_processes()
         else:
