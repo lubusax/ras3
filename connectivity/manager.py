@@ -13,10 +13,12 @@ def main():
 
             server.handleInternetNotReachable()
 
-        elif server.isRunning():            # internet is working,
-
-            server.terminate()                   # wifi connect should be terminated
-
+        else:
+            if server.isRunning():     # internet is working,
+                server.terminate()     # wifi connect should be terminated
+            if ch.hostname_has_to_be_defined():
+                ch.define_hostname()
+                
         time.sleep(co.PERIOD_CONNECTIVITY_MANAGER)
 
         # TODO setFlagToEthernetOrWiFi() # if Ethernet and WiFi are both available, Flag is Ethernet

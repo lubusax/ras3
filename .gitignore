@@ -140,3 +140,5 @@ cython_debug/
 
 #own definitions
 killme*
+trash/
+section6/data.db

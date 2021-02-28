@@ -1,4 +1,5 @@
 import os
+import socket
 import signal
 import psutil
 from multiprocessing import Process, Manager
@@ -88,4 +89,28 @@ class wificonnectProcess():
             return True
         else:
             return False
- 
+
+def hostname_resolves(hostname):
+    try:
+        socket.gethostbyname(hostname)
+        return True
+    except socket.error:
+        return False
+
+def hostname_has_to_be_defined():
+    # TODO check in the internal database
+    return False
+
+def generate_random_hostname():
+    pass
+
+def change_hostname_to(hostname):
+    pass
+
+def define_hostname():
+    hostname_available = False
+    while not hostname_available:
+        hostname = generate_random_hostname()
+        if not hostname_resolves(hostname):
+            hostname_available= True
+    change_hostname_to(hostname)
